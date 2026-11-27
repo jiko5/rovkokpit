@@ -17,10 +17,16 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Set up Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y git zip unzip openjdk-17-jdk autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev lld
+          sudo apt-get install -y git zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libncursesw5-dev cmake libffi-dev libssl-dev lld
           pip install --upgrade pip==23.3.2
           pip install buildozer==1.5.0 cython==0.29.36 setuptools==69.5.1 wheel
 
@@ -43,9 +49,10 @@ jobs:
           echo "android.archs = arm64-v8a" >> buildozer.spec
           echo "android.accept_sdk_license = True" >> buildozer.spec
           echo "[buildozer]" >> buildozer.spec
-          echo "log_level = 1" >> buildozer.spec
+          echo "log_level = 2" >> buildozer.spec
           echo "warn_on_root = 0" >> buildozer.spec
-          yes | buildozer android debug
+          set -o pipefail
+          yes | buildozer android debug | tail -n 100
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
